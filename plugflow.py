@@ -10,13 +10,13 @@ workDir = os.getcwd()
 import FreeCAD as App
 import FreeCADGui as Gui
 import math
-doc = App.newDocument("hotel")
-App.setActiveDocument("hotel")
-App.ActiveDocument=App.getDocument("hotel")
-Gui.ActiveDocument=Gui.getDocument("hotel")
+doc = App.newDocument("plugflow")
+App.setActiveDocument("plugflow")
+App.ActiveDocument=App.getDocument("plugflow")
+Gui.ActiveDocument=Gui.getDocument("plugflow")
 Gui.activeDocument().activeView().viewAxonometric()
 Gui.SendMsgToActiveView("ViewFit")
-dui = Gui.getDocument("hotel")
+dui = Gui.getDocument("plugflow")
 
 tankSize = [9,3,6]
 brickSize = [30,15,12]
@@ -156,7 +156,6 @@ class Outlet:
     size = [radius, length]
     sizeCut = [radius-outletTubeThickness, length+20]
 
-
   position0 = App.Vector(
     Tank.length*(Brick.length+joint)+2*Brick.width,
     (Tank.width+1)*(Brick.length+joint)/2,
@@ -176,13 +175,9 @@ class Outlet:
     cyl('outletCylCut', Outlet.Tube.sizeCut)
     difference('outlet', 'outletCyl', 'outletCylCut')
     place(doc.getObject('outlet'), Outlet.position0, Outlet.rotation)
+    show()
     time.sleep(Outlet.delay)
     place(doc.getObject('outlet'), Outlet.position, Outlet.rotation)
-
-
-#out=Outlet(); v()
-
-
 
 
 def south(layer, z):
@@ -256,38 +251,6 @@ def tank():
     north(layer, z)
     west(layer, z)
 
-def i():
-  global o
-  o = Inlet()
-
-def outlet():
-  out=Outlet()
-
-def v():
-  App.ActiveDocument.recompute()
-  Gui.activeDocument().activeView().viewAxonometric()
-  Gui.SendMsgToActiveView("ViewFit")
-  Gui.updateGui()
-
-def d():
-  for obj in doc.Objects:
-    doc.removeObject(obj.Label)
-  Brick.reset()
-
-def r():
-  d()
-  tank()
-  v()
-  #Brick.fuse(); v()
-  o = Inlet()
-  place(o.inlet, Inlet.position0, Inlet.rotation)
-  v()
-  time.sleep(Inlet.delay)
-  place(o.inlet, Inlet.position, Inlet.rotation)
-  v()
-  outlet()
-  v()
-
 def difference(name, base, tool):
   cut = doc.addObject("Part::Cut",name)
   cut.Base = doc.getObject(base)
@@ -312,9 +275,32 @@ def cyl(name, size, position=App.Vector(0,0,0), rotation=noRotation, color=(.0,.
   cyl.Placement = App.Placement(position, rotation)
   dui.getObject(name).ShapeColor = color
 
+def show():
+  App.ActiveDocument.recompute()
+  #Gui.activeDocument().activeView().viewAxonometric()
+  #Gui.SendMsgToActiveView("ViewFit")
+  Gui.updateGui()
 
-r()
+def deleteAll():
+  for obj in doc.Objects:
+    doc.removeObject(obj.Label)
+  Brick.reset()
+
+def runAll():
+  deleteAll()
+  tank()
+  show()
+  #Brick.fuse(); show()
+  o = Inlet()
+  place(o.inlet, Inlet.position0, Inlet.rotation)
+  show()
+  time.sleep(Inlet.delay)
+  place(o.inlet, Inlet.position, Inlet.rotation)
+  show()
+  Outlet()
+  show()
 
 
+runAll()
 
 
